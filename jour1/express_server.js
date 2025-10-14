@@ -26,6 +26,13 @@ app.get('/transaction', (req, res) => {
   res.json(numbers);
 });
 
+app.get('/exo-query-string', (req, res) => {
+  const person = req.query;
+  console.log(person);
+  const message = `<h1>${person.age}</h1>`;
+  res.send(message);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
