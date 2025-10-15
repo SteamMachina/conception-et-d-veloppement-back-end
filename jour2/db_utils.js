@@ -1,14 +1,18 @@
-// 11. Se connecter à une bdd SQL en nodejs - 1
-import { Client,Pool } from 'pg'
+import { Client, Pool } from 'pg'
 
-const client = new Client({
-  host     : 'localhost',
-  user     : 'postgres',
-  password : 'root',
-  database : 'mabase'
-})
+async function getConnection(username, password, database){
+    const client = new Client({
+        host     : 'localhost',
+        user     : username,
+        password : password,
+        database : database
+    })
 
-await client.connect()
+    await client.connect()
+    return client
+}
+
+const client = await getConnection('postgres', 'root', 'mabase')
 
 try {
     const res = await client.query("Select * from users")
@@ -17,4 +21,13 @@ try {
    console.error(err);
 } finally {
    await client.end()
+}
+
+function getUsers(callback){
+    try {
+        const res = await client.query("Select * from users")
+        console.log(res.rows) 
+    } catch (err) {
+        console.error(err);
+    }
 }
