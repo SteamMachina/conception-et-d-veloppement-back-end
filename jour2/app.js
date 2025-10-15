@@ -7,13 +7,13 @@ dotenv.config()
 const app = express()
 const port = process.env.APP_PORT || 3000
 
-app.use(express.json())
-
 function loggerMiddleware(request, response, next){
     console.log("nouvelle requête entrante")
+    console.log(request.body)
     next()
 }
 
+app.use(express.json())
 app.use(loggerMiddleware)
 
 app.get('/users', async (req, res) => {
