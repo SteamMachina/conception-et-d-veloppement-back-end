@@ -14,7 +14,9 @@ function loggerMiddleware(request, response, next){
     next()
 }
 
-app.get('/users', loggerMiddleware, async (req, res) => {
+app.use(loggerMiddleware)
+
+app.get('/users', async (req, res) => {
     try {
         const users = await getUsers();
         res.json(users);
@@ -23,7 +25,7 @@ app.get('/users', loggerMiddleware, async (req, res) => {
     }
 });
 
-app.post('/users', loggerMiddleware, async (req, res) => {
+app.post('/users', async (req, res) => {
     try {
         const newUser = await insert_user(req.body);
         res.status(201).json(newUser);
