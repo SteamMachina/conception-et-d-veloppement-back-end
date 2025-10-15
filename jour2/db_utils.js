@@ -1,7 +1,6 @@
 import { Client, Pool } from 'pg'
 import dotenv from 'dotenv'
 
-// Charger les variables d'environnement
 dotenv.config()
 
 async function getConnection(){
@@ -17,12 +16,12 @@ async function getConnection(){
     return client
 }
 
-const client = await getConnection()
-
 async function getUsers(){
     try {
+        const client = await getConnection()
         const res = await client.query("SELECT * FROM users")
-        console.log(res.rows) 
+        console.log(res.rows)
+        await client.end() 
         return res.rows
     } catch (err) {
         console.error(err);
@@ -32,10 +31,12 @@ async function getUsers(){
 
 async function insert_user(user){
     try{
+        const client = await getConnection()
         const query = 'INSERT INTO users (email) VALUES ($1) RETURNING *';
         const values = [user.email];
         const res = await client.query(query, values);
         console.log('Inserted user:', res.rows[0]);
+        await client.end()
         return res.rows[0];
     } catch (err){
         console.error(err);
@@ -43,12 +44,11 @@ async function insert_user(user){
     }
 }
 
-// Example usage
-try {
-    await insert_user({email: "test@test.com"})
-    await getUsers()
-} catch (err) {
-    console.error(err);
-} finally {
-    await client.end()
-}
+export {getUsers, insert_user}
+
+// try {
+//     await insert_user({email: "test@test.com"})
+//     await getUsers()
+// } catch (err) {
+//     console.error(err);
+// }
