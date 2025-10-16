@@ -1,14 +1,15 @@
 import dotenv from 'dotenv'
 import express from 'express'
+import { registeredUsers, tokens } from './inMemoryUserRepository.js'
 dotenv.config()
 
 const app = express()
 const port = process.env.APP_PORT || 3000
 
-function checkTokenMiddleware(req, res, next){
+function checkToken(req, res, next){
     const inputToken = req.headers.authorization
-    console.log()
-    if (inputToken === token){
+    const validToken = tokens.find(tokenObj => tokenObj[inputToken])
+    if (validToken){
         next()
     } else{
         res.status(403).json({ message: "Accès refusé" });
@@ -28,14 +29,30 @@ function firewall(req, res, next){
     if (restrictedUrls.includes(selectedUrl)){
         next()
     } else {
-        checkTokenMiddleware(req, res, next)
+        checkToken(req, res, next)
+    }
+}
+
+// function getRegisteredUsers(){
+//     return registeredUsers
+// }
+
+function checkCredentials(req, res, next){
+    const {email, password} = req.body
+    
+    const userFound = registeredUsers.find(user => user.email === email && user.password === password)
+    
+    if (userFound){
+        next()
+    } else {
+        res.status(403).json({ message: "Incorect credentials" });
     }
 }
 
 app.use(express.json())
 //app.use(urlCheckMiddleware)
 app.use(firewall)
-//app.use(checkTokenMiddleware)
+//app.use(checkToken)
 
 app.get('/hello', (req, res) => {
     res.send("<h1>hello</h1>")
@@ -49,18 +66,16 @@ app.get('/restricted2', (req, res) => {
     res.status(200).send("<h1>Admin space</h1>")
 })
 
-var token = ""
-
-app.post('/login', (req, res) => {
+app.post('/login', checkCredentials, (req, res) => {
     const {email, password} = req.body
     
-    // Vérifier que les valeurs sont présentes
     if (!email || !password) {
-        return res.status(400).json({ message: "Email and password required" })
+        return res.status(403).json({ message: "Email and password required" })
     }
     
-    token = String(Math.floor(Math.random() * 101))
-    res.status(200).send(token)
+    const token = String(Math.floor(Math.random() * 101))
+    tokens.push({[token] : email})
+    res.status(200).json({ token: token })
 })
 
 app.listen(port, () => {
