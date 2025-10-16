@@ -6,7 +6,8 @@ const app = express()
 const port = process.env.APP_PORT || 3000
 
 function checkTokenMiddleware(req, res, next){
-    const token = req.headers.token
+    const token = req.headers.authorization
+    console.log()
     if (token === "42"){
         next()
     } else{
@@ -14,8 +15,27 @@ function checkTokenMiddleware(req, res, next){
     }
 }
 
+// function urlCheckMiddleware(req, res, next){
+//     const headers = req.headers
+//     console.log(headers)
+//     next()
+// }
+
+function firewall(req, res, next){
+    const restrictedUrls = ['/hello']
+    const selectedUrl = req.path
+    
+    if (restrictedUrls.includes(selectedUrl)){
+        next()
+    } else {
+        checkTokenMiddleware(req, res, next)
+    }
+}
+
 app.use(express.json())
-app.use(checkTokenMiddleware)
+//app.use(urlCheckMiddleware)
+app.use(firewall)
+//app.use(checkTokenMiddleware)
 
 app.get('/hello', (req, res) => {
     res.send("<h1>hello</h1>")
