@@ -6,9 +6,9 @@ const app = express()
 const port = process.env.APP_PORT || 3000
 
 function checkTokenMiddleware(req, res, next){
-    const token = req.headers.authorization
+    const inputToken = req.headers.authorization
     console.log()
-    if (token === "42"){
+    if (inputToken === token){
         next()
     } else{
         res.status(403).json({ message: "Accès refusé" });
@@ -22,7 +22,7 @@ function checkTokenMiddleware(req, res, next){
 // }
 
 function firewall(req, res, next){
-    const restrictedUrls = ['/hello']
+    const restrictedUrls = ['/hello', '/login']
     const selectedUrl = req.path
     
     if (restrictedUrls.includes(selectedUrl)){
@@ -47,6 +47,20 @@ app.get('/restricted1', (req, res) => {
 
 app.get('/restricted2', (req, res) => {
     res.status(200).send("<h1>Admin space</h1>")
+})
+
+var token = ""
+
+app.post('/login', (req, res) => {
+    const {email, password} = req.body
+    
+    // Vérifier que les valeurs sont présentes
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" })
+    }
+    
+    token = String(Math.floor(Math.random() * 101))
+    res.status(200).send(token)
 })
 
 app.listen(port, () => {
