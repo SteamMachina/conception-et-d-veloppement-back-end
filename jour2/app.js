@@ -14,11 +14,12 @@ function loggerMiddleware(request, response, next){
 }
 
 app.use(express.json())
-app.use(express.static('public'))  // Servir les fichiers statiques du dossier public
+app.use(express.static('public'))
+app.use(express.static('templates'))
 app.use(loggerMiddleware)
 
 app.get('/', (req, res) => {
-    res.sendFile('templates/index.html', { root: '.' })
+    res.render("index")
 })
 
 app.get('/users', async (req, res) => {
